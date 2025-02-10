@@ -1,8 +1,8 @@
 import { CalendarOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { Form, Input } from "antd";
-import { Button, ConfigProvider, Flex } from 'antd';
-import { useResponsive } from 'antd-style';
+import { Button, ConfigProvider, Flex } from "antd";
+import { useResponsive } from "antd-style";
 
 const Header = () => {
   const [componentSize, setComponentSize] = useState("default");
@@ -11,7 +11,6 @@ const Header = () => {
   };
 
   const { xxl } = useResponsive();
-
 
   return (
     <section className=" ">
@@ -40,7 +39,7 @@ const Header = () => {
       </div>
       <div className=" flex justify-between">
         <Form
-        className=" min-w-[30%]"
+          className=" min-w-[30%]"
           labelCol={{
             span: 4,
           }}
@@ -56,7 +55,7 @@ const Header = () => {
           style={{
             maxWidth: 600,
           }}>
-          <Form.Item className="px-8 min-w-100">
+          <Form.Item className="  px-8 min-w-100">
             <Input placeholder=" Filter tasks..." />
           </Form.Item>
         </Form>
@@ -65,7 +64,10 @@ const Header = () => {
           <ConfigProvider componentSize={xxl ? "middle" : "small"}>
             <Flex vertical gap="small">
               <Flex gap="small" wrap>
-                <Button className=" font-bold px-8 py-4 mr-5" color="default" variant="solid">
+                <Button
+                  className="  font-bold px-8 py-4 mr-5"
+                  color="default"
+                  variant="solid">
                   Add Task
                 </Button>
               </Flex>
