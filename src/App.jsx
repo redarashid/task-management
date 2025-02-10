@@ -1,3 +1,4 @@
+import Chart from "./components/Chart";
 import Header from "./components/Header";
 import Table from "./components/Table";
 
@@ -6,6 +7,7 @@ function App() {
   <div>
     <Header />
     <Table />
+    <Chart />
   </div>
 );
 }

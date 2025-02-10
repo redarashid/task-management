@@ -110,6 +110,7 @@ const DataTable = () => {
         onOk={handleSave}
         onCancel={handleCancel}>
         <Form layout="vertical">
+        
           <Form.Item label="Name">
             <Input
               value={editingRecord?.name}
@@ -118,6 +119,7 @@ const DataTable = () => {
               }
             />
           </Form.Item>
+
           <Form.Item label="Age">
             <Input
               value={editingRecord?.age}
@@ -126,6 +128,7 @@ const DataTable = () => {
               }
             />
           </Form.Item>
+
           <Form.Item label="Address">
             <Input
               value={editingRecord?.address}
