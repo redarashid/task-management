@@ -55,8 +55,11 @@ const Header = () => {
           style={{
             maxWidth: 600,
           }}>
-          <Form.Item className="  px-8 min-w-100">
-            <Input placeholder=" Filter tasks..." />
+          <Form.Item className="   px-8 min-w-100">
+            <Input
+              className=" hover:border-gray-500 outline-gray-500 focus:border-gray-500"
+              placeholder=" Filter tasks..."
+            />
           </Form.Item>
         </Form>
 

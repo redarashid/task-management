@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Form, Space, Table } from "antd";
-const columns = [
+import { Form, Space, Table, Input, Modal } from "antd";
+
+const columns = (onEdit) => [
   {
     title: "Name",
     dataIndex: "name",
@@ -29,94 +30,101 @@ const columns = [
   {
     title: "Action",
     key: "action",
-    sorter: true,
-    render: () => (
+    render: (_, record) => (
       <Space size="middle">
-        <a className=" hover:text-red-500">
-          <DeleteOutlined />
-        </a>
-        <a className=" hover:text-yellow-800">
+        <a
+          className="hover:text-yellow-800"
+          onClick={() => onEdit(record)} // استدعاء دالة التعديل
+        >
           <Space>
             <EditOutlined />
           </Space>
+        </a>
+        <a className="hover:text-red-500">
+          <DeleteOutlined />
         </a>
       </Space>
     ),
   },
 ];
-const data = Array.from({
-  length: 10,
-}).map((_, i) => ({
-  key: i,
-  name: "John Brown",
-  age: Number(`${i}2`),
-  address: `New York No. ${i} Lake Park`,
-  description: `My name is John Brown, I am ${i}2 years old, living in New York No. ${i} Lake Park.`,
-}));
-const defaultExpandable = {
-  expandedRowRender: (record) => <p>{record.description}</p>,
-};
-const defaultTitle = () => "Here is title";
 
 const DataTable = () => {
-  const [bordered] = useState(false);
-  const [loading] = useState(false);
-  const [size] = useState("large");
-  const [expandable] = useState(defaultExpandable);
-  const [showTitle] = useState(false);
-  const [showHeader] = useState(true);
-  const [rowSelection] = useState({});
-  const [hasData] = useState(true);
-  const [tableLayout] = useState("unset");
-  const [top] = useState("none");
-  const [bottom] = useState("bottomRight");
-  const [ellipsis] = useState(false);
-  const [yScroll] = useState(false);
-  const [xScroll] = useState("unset");
+  const [data, setData] = useState(
+    Array.from({ length: 10 }).map((_, i) => ({
+      key: i,
+      name: "John Brown",
+      age: Number(`${i}2`),
+      address: `New York No. ${i} Lake Park`,
+      description: `My name is John Brown, I am ${i}2 years old, living in New York No. ${i} Lake Park.`,
+    }))
+  );
+  const [editingRecord, setEditingRecord] = useState(null); // السجل الحالي للتعديل
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const scroll = {};
-  if (yScroll) {
-    scroll.y = 240;
-  }
-  if (xScroll !== "unset") {
-    scroll.x = "100vw";
-  }
-  const tableColumns = columns.map((item) => ({
-    ...item,
-    ellipsis,
-  }));
-  if (xScroll === "fixed") {
-    tableColumns[0].fixed = true;
-    tableColumns[tableColumns.length - 1].fixed = "right";
-  }
-  const tableProps = {
-    bordered,
-    loading,
-    size,
-    expandable,
-    title: showTitle ? defaultTitle : undefined,
-    showHeader,
-    rowSelection,
-    scroll,
-    tableLayout: tableLayout === "unset" ? undefined : tableLayout,
+  // دالة فتح النموذج للتعديل
+  const handleEdit = (record) => {
+    setEditingRecord(record); // تحديد السجل الذي سيتم تعديله
+    setIsModalVisible(true); // فتح النافذة المنبثقة
   };
+
+  // دالة حفظ التعديلات
+  const handleSave = () => {
+    setData((prevData) =>
+      prevData.map((item) =>
+        item.key === editingRecord.key ? editingRecord : item
+      )
+    );
+    setIsModalVisible(false); // غلق النافذة المنبثقة
+  };
+
+  // دالة إلغاء التعديل
+  const handleCancel = () => {
+    setIsModalVisible(false); // غلق النافذة المنبثقة
+  };
+
   return (
     <>
-      <Form
-        layout="inline"
-        className="table-demo-control-bar"
-        style={{
-          marginBottom: 16,
-        }}></Form>
       <Table
-        {...tableProps}
+        columns={columns(handleEdit)} // تمرير دالة التعديل للعمود
+        dataSource={data}
         pagination={{
-          position: [top, bottom],
+          position: ["none", "bottomRight"],
         }}
-        columns={tableColumns}
-        dataSource={hasData ? data : []}
-        scroll={scroll}
       />
+
+      <Modal
+        title="Edit Record"
+        visible={isModalVisible}
+        onOk={handleSave} // استدعاء دالة الحفظ عند الضغط على OK
+        onCancel={handleCancel} // استدعاء دالة الإلغاء عند الضغط على Cancel
+      >
+        <Form layout="vertical">
+          <Form.Item label="Name">
+            <Input
+              value={editingRecord?.name}
+              onChange={(e) =>
+                setEditingRecord({ ...editingRecord, name: e.target.value })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="Age">
+            <Input
+              value={editingRecord?.age}
+              onChange={(e) =>
+                setEditingRecord({ ...editingRecord, age: e.target.value })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="Address">
+            <Input
+              value={editingRecord?.address}
+              onChange={(e) =>
+                setEditingRecord({ ...editingRecord, address: e.target.value })
+              }
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };
