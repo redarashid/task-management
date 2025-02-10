@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Form, Space, Table, Input, Modal } from "antd";
+import { Form, Space, Table, Input, Modal, Popconfirm } from "antd";
+import { useState } from "react";
 
-const columns = (onEdit) => [
+const columns = (onEdit, onDelete) => [
   {
     title: "Name",
     dataIndex: "name",
@@ -16,14 +16,8 @@ const columns = (onEdit) => [
     title: "Address",
     dataIndex: "address",
     filters: [
-      {
-        text: "London",
-        value: "London",
-      },
-      {
-        text: "New York",
-        value: "New York",
-      },
+      { text: "London", value: "London" },
+      { text: "New York", value: "New York" },
     ],
     onFilter: (value, record) => record.address.indexOf(value) === 0,
   },
@@ -32,17 +26,18 @@ const columns = (onEdit) => [
     key: "action",
     render: (_, record) => (
       <Space size="middle">
-        <a
-          className="hover:text-yellow-800"
-          onClick={() => onEdit(record)} // استدعاء دالة التعديل
-        >
-          <Space>
-            <EditOutlined />
-          </Space>
+        <a className="hover:text-yellow-800" onClick={() => onEdit(record)}>
+          <EditOutlined />
         </a>
-        <a className="hover:text-red-500">
-          <DeleteOutlined />
-        </a>
+        <Popconfirm
+          title="Are you sure to delete this record?"
+          onConfirm={() => onDelete(record.key)}
+          okText="Yes"
+          cancelText="No">
+          <a className="hover:text-red-500">
+            <DeleteOutlined />
+          </a>
+        </Popconfirm>
       </Space>
     ),
   },
@@ -52,52 +47,68 @@ const DataTable = () => {
   const [data, setData] = useState(
     Array.from({ length: 10 }).map((_, i) => ({
       key: i,
-      name: "John Brown",
+      name: `John Brown ${i}`,
       age: Number(`${i}2`),
       address: `New York No. ${i} Lake Park`,
       description: `My name is John Brown, I am ${i}2 years old, living in New York No. ${i} Lake Park.`,
     }))
   );
-  const [editingRecord, setEditingRecord] = useState(null); // السجل الحالي للتعديل
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // دالة فتح النموذج للتعديل
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRowKey, setSelectedRowKey] = useState(null); // تخزين الصف المحدد
+
+  // فتح النافذة للتعديل
   const handleEdit = (record) => {
-    setEditingRecord(record); // تحديد السجل الذي سيتم تعديله
-    setIsModalVisible(true); // فتح النافذة المنبثقة
+    setEditingRecord(record);
+    setIsModalVisible(true);
   };
 
-  // دالة حفظ التعديلات
+  // حذف السجل
+  const handleDelete = (key) => {
+    setData((prevData) => prevData.filter((item) => item.key !== key));
+  };
+
+  // حفظ التعديلات
   const handleSave = () => {
     setData((prevData) =>
       prevData.map((item) =>
         item.key === editingRecord.key ? editingRecord : item
       )
     );
-    setIsModalVisible(false); // غلق النافذة المنبثقة
+    setIsModalVisible(false);
   };
 
-  // دالة إلغاء التعديل
+  // إلغاء التعديل
   const handleCancel = () => {
-    setIsModalVisible(false); // غلق النافذة المنبثقة
+    setIsModalVisible(false);
+  };
+
+  // إعداد اختيار الصفوف
+  const rowSelection = {
+    type: "radio",
+    selectedRowKeys: selectedRowKey !== null ? [selectedRowKey] : [],
+    onChange: (selectedKeys) => {
+      setSelectedRowKey(selectedKeys[0]); // تحديث الصف المحدد
+    },
   };
 
   return (
-    <>
-      <Table
-        columns={columns(handleEdit)} // تمرير دالة التعديل للعمود
-        dataSource={data}
-        pagination={{
-          position: ["none", "bottomRight"],
-        }}
-      />
+    <div className=" px-6 ">
+      <div className=" border border-gray-200">
+        <Table
+          rowSelection={rowSelection}
+          columns={columns(handleEdit, handleDelete)}
+          dataSource={data}
+          pagination={{ position: ["none", "bottomRight"] }}
+        />
+      </div>
 
       <Modal
         title="Edit Record"
         visible={isModalVisible}
-        onOk={handleSave} // استدعاء دالة الحفظ عند الضغط على OK
-        onCancel={handleCancel} // استدعاء دالة الإلغاء عند الضغط على Cancel
-      >
+        onOk={handleSave}
+        onCancel={handleCancel}>
         <Form layout="vertical">
           <Form.Item label="Name">
             <Input
@@ -125,7 +136,7 @@ const DataTable = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 };
 
